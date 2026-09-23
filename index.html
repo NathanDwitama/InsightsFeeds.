@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INSIGHTS FEEDS - For Your Updates</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        folk: {
+                            black: '#0b0b0b',
+                            cardDark: '#121212',
+                            borderDark: '#222222',
+                            red: '#E50914',
+                            gray: '#888888'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="icon" href="/gambar/logo.png" type="image/png">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .folk-title {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+        }
+        /* Custom Scrollbar for sleek UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #0b0b0b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+        /* Smooth transitions */
+        .fade-in {
+            animation: fadeIn 0.25s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Toast Notification Styling */
+        #toast {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-white text-black dark:bg-folk-black dark:text-white min-h-screen flex flex-col selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-folk-black/90 backdrop-blur-md border-b border-gray-200 dark:border-folk-borderDark transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-2xl p-1 focus:outline-none" aria-label="Open Menu">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+
+                <!-- Brand Logo -->
+                <a href="#" onclick="filterCategory('All')" class="text-3xl sm:text-4xl folk-title uppercase tracking-tighter font-extrabold flex items-center gap-1">
+                    INSIGHTS FEEDS<span class="text-red-600 text-4xl leading-none">.</span>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex space-x-8 font-medium text-xs sm:text-sm tracking-wider uppercase">
+                    <button onclick="filterCategory('All')" class="nav-cat-btn font-bold text-red-600 dark:text-red-500 hover:opacity-80 transition" data-cat="All">Trending</button>
+                    <button onclick="filterCategory('Culture')" class="nav-cat-btn hover:text-red-500 transition" data-cat="Culture">Culture</button>
+                    <button onclick="filterCategory('Tech')" class="nav-cat-btn hover:text-red-500 transition" data-cat="Tech">Tech</button>
+                    <button onclick="filterCategory('Lifestyle')" class="nav-cat-btn hover:text-red-500 transition" data-cat="Lifestyle">Lifestyle</button>
+                    <button onclick="filterCategory('Music')" class="nav-cat-btn hover:text-red-500 transition" data-cat="Music">Music</button>
+                    <button onclick="filterCategory('Art')" class="nav-cat-btn hover:text-red-500 transition" data-cat="Art">Art</button>
+                </nav>
+
+                <!-- Actions: Search & Theme Toggle -->
+                <div class="flex items-center space-x-3 sm:space-x-5">
+                    <button id="search-btn" class="p-2 hover:opacity-70 transition text-lg" aria-label="Search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button id="theme-toggle" class="p-2 hover:opacity-70 transition text-lg" aria-label="Toggle Theme">
+                        <i id="theme-icon" class="fa-solid fa-sun"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Horizontal Scroll Bar (Mobile & Desktop secondary) -->
+        <div class="border-t border-gray-100 dark:border-zinc-800/80 overflow-x-auto no-scrollbar py-2.5 px-4 max-w-7xl mx-auto flex items-center space-x-3 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400">
+            <span class="text-black dark:text-white font-bold whitespace-nowrap mr-2">Top Topics:</span>
+            <button onclick="filterCategory('All')" class="px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition whitespace-nowrap">#All</button>
+            <button onclick="filterCategory('Culture')" class="px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition whitespace-nowrap">#Culture</button>
+            <button onclick="filterCategory('Tech')" class="px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition whitespace-nowrap">#AI & Tech</button>
+            <button onclick="filterCategory('Lifestyle')" class="px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition whitespace-nowrap">#GenZ Trends</button>
+            <button onclick="filterCategory('Music')" class="px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition whitespace-nowrap">#Indie Music</button>
+            <button onclick="filterCategory('Art')" class="px-3 py-1 rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition whitespace-nowrap">#Visual Art</button>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer Navigation -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-folk-black w-3/4 max-w-xs h-full p-6 flex flex-col justify-between shadow-2xl">
+            <div>
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-2xl font-extrabold tracking-tighter">INSIGHTS FEEDS<span class="text-red-600">.</span></span>
+                    <button id="close-mobile-menu" class="text-2xl p-2"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="flex flex-col space-y-5 text-lg font-bold uppercase tracking-wider">
+                    <button onclick="filterCategory('All'); closeMobileNav()" class="text-left hover:text-red-600 transition">Trending</button>
+                    <button onclick="filterCategory('Culture'); closeMobileNav()" class="text-left hover:text-red-600 transition">Culture</button>
+                    <button onclick="filterCategory('Tech'); closeMobileNav()" class="text-left hover:text-red-600 transition">Tech</button>
+                    <button onclick="filterCategory('Lifestyle'); closeMobileNav()" class="text-left hover:text-red-600 transition">Lifestyle</button>
+                    <button onclick="filterCategory('Music'); closeMobileNav()" class="text-left hover:text-red-600 transition">Music</button>
+                    <button onclick="filterCategory('Art'); closeMobileNav()" class="text-left hover:text-red-600 transition">Art</button>
+                </div>
+            </div>
+            <div class="text-xs text-gray-500 border-t border-gray-200 dark:border-zinc-800 pt-4">
+                &copy; 2026 INSIGHTS FEEDS Media Network.
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- FEATURED / HERO ARTICLE (TOP STORIES) -->
+        <section id="hero-section" class="mb-12">
+            <div id="hero-container" class="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-gray-50 dark:bg-zinc-900/60 p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-zinc-800">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- CATEGORY HEADER TITLE -->
+        <div class="flex justify-between items-end mb-6 border-b border-gray-200 dark:border-zinc-800 pb-4">
+            <div>
+                <span class="text-xs uppercase font-bold text-red-600 tracking-widest">Selected Stories</span>
+                <h2 id="current-category-title" class="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight">Latest Feed</h2>
+            </div>
+            <span id="article-count" class="text-xs text-gray-500 font-mono">Showing all items</span>
+        </div>
+
+        <!-- ARTICLES GRID CONTAINER -->
+        <section id="articles-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <!-- Articles injected dynamically via JS -->
+        </section>
+
+        <!-- NEWSLETTER SECTION -->
+        <section class="my-16 bg-black text-white dark:bg-zinc-900 rounded-2xl p-8 sm:p-12 border border-zinc-800 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-red-600/20 rounded-full blur-3xl"></div>
+            <div class="relative z-10 max-w-xl mx-auto space-y-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-red-500">Stay Ahead of Culture</span>
+                <h3 class="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight">For Your Updates</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Dapatkan rangkuman tren pop-culture, seni, musik, dan teknologi langsung ke kotak masuk kamu setiap pagi hari.</p>
+                <form id="newsletter-form" onsubmit="handleSubscribe(event)" class="flex flex-col sm:flex-row gap-2 pt-2">
+                    <input type="email" placeholder="Masukkan alamat surel kamu..." required class="bg-zinc-800 border border-zinc-700 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 flex-grow text-sm">
+                    <button type="submit" class="bg-white text-black font-bold px-6 py-3 rounded-xl hover:bg-gray-200 transition text-sm uppercase tracking-wider">Subscribe</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-folk-black py-12 text-sm text-gray-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <a href="#" class="text-3xl folk-title uppercase tracking-tighter font-extrabold text-black dark:text-white">INSIGHTS FEEDS<span class="text-red-600">.</span></a>
+                <p class="text-xs leading-relaxed">Platform media digital independen untuk generasi muda. Menyajikan perspektif segar seputar budaya, seni, gaya hidup, dan inovasi terkini.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-black dark:text-white uppercase text-xs tracking-wider mb-4">Kategori</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#" onclick="filterCategory('Culture')" class="hover:underline">Culture & Society</a></li>
+                    <li><a href="#" onclick="filterCategory('Tech')" class="hover:underline">Tech & Innovation</a></li>
+                    <li><a href="#" onclick="filterCategory('Lifestyle')" class="hover:underline">Lifestyle & Fashion</a></li>
+                    <li><a href="#" onclick="filterCategory('Music')" class="hover:underline">Music & Sound</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-black dark:text-white uppercase text-xs tracking-wider mb-4">Informasi</h4>
+                <div class="space-y-3">
+                    <a href="INSIGHTS_FEEDS_Tentang_Kami.html" target="_blank" rel="noopener" class="inline-block text-left text-sm font-medium text-black dark:text-white hover:opacity-80 transition">
+                        Tentang Kami
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-black dark:text-white uppercase text-xs tracking-wider mb-4">Ikuti Kami</h4>
+                <div class="flex space-x-4 text-lg text-black dark:text-white">
+                    <a href="https://www.instagram.com/insightfeeds22/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noopener noreferrer" aria-label="Instagram INSIGHTS FEEDS" class="hover:text-red-600 transition"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="hover:text-red-600 transition"><i class="fa-brands fa-x-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-gray-200 dark:border-zinc-800/60 text-center text-xs">
+            &copy; 2026 INSIGHTS FEEDS Media Group. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- ARTICLE DETAIL READER MODAL -->
+    <div id="article-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex justify-center items-start p-0 sm:p-4 md:p-6">
+        <div class="bg-white dark:bg-zinc-950 text-black dark:text-white w-full max-w-4xl min-h-screen sm:min-h-0 sm:rounded-3xl shadow-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden relative my-0 sm:my-6 transition-all duration-300 transform scale-95" id="modal-content-container">
+            
+            <!-- Sticky Modal Control Bar -->
+            <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md px-6 py-4 border-b border-gray-100 dark:border-zinc-800/80 flex justify-between items-center">
+                <div class="flex items-center space-x-2 text-xs font-semibold uppercase text-red-600">
+                    <span id="modal-category">Category</span>
+                    <span class="text-gray-400">•</span>
+                    <span id="modal-readtime" class="text-gray-500 dark:text-gray-400">3 min read</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="modal-bookmark-btn" onclick="toggleBookmarkCurrentArticle()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition" title="Simpan Artikel">
+                        <i id="modal-bookmark-icon" class="fa-regular fa-bookmark text-lg"></i>
+                    </button>
+                    <button id="modal-like-btn" onclick="toggleLikeCurrentArticle()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition text-red-600 flex items-center gap-1.5" title="Sukai Artikel">
+                        <i id="modal-like-icon" class="fa-regular fa-heart text-lg"></i>
+                        <span id="modal-like-count" class="text-xs font-bold text-black dark:text-white">0</span>
+                    </button>
+                    <button onclick="closeArticleModal()" class="p-2 rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-red-600 hover:text-white transition text-lg" title="Tutup (Esc)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Article Body Content -->
+            <div class="px-6 sm:px-12 py-8 space-y-8">
+                <!-- Article Header -->
+                <div class="space-y-4">
+                    <h1 id="modal-title" class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight uppercase font-sans">
+                        Judul Artikel
+                    </h1>
+                    <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 border-y border-gray-100 dark:border-zinc-800 py-3">
+                        <div class="flex items-center space-x-2">
+                            <span id="modal-author" class="font-bold text-black dark:text-white">Author Name</span>
+                        </div>
+                        <span>•</span>
+                        <span id="modal-date">22 Sep 2026</span>
+                    </div>
+                </div>
+
+                <!-- Featured Image -->
+                <div class="space-y-2">
+                    <div class="relative overflow-hidden rounded-2xl aspect-video bg-gray-100 dark:bg-zinc-800">
+                        <img id="modal-image" src="" alt="" class="w-full h-full object-cover">
+                    </div>
+                    <p id="modal-caption" class="text-xs text-center text-gray-500 italic">Keterangan Gambar / Caption</p>
+                </div>
+
+                <!-- Paragraphs / Article Body -->
+                <div id="modal-article-body" class="prose dark:prose-invert max-w-none text-base sm:text-lg leading-relaxed text-gray-800 dark:text-gray-200 space-y-6">
+                    <!-- Dynamic paragraphs will be injected here -->
+                </div>
+
+                <!-- Share Buttons Section -->
+                <div class="border-t border-b border-gray-200 dark:border-zinc-800 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Bagikan Cerita Ini:</span>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="shareArticle('whatsapp')" class="px-4 py-2 rounded-xl bg-green-600 text-white font-medium text-xs flex items-center gap-2 hover:bg-green-700 transition">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        </button>
+                        <button onclick="shareArticle('twitter')" class="px-4 py-2 rounded-xl bg-black dark:bg-zinc-800 text-white font-medium text-xs flex items-center gap-2 hover:bg-zinc-700 transition">
+                            <i class="fa-brands fa-x-twitter text-sm"></i> X / Twitter
+                        </button>
+                        <button onclick="shareArticle('copy')" class="px-4 py-2 rounded-xl bg-gray-200 dark:bg-zinc-800 text-black dark:text-white font-medium text-xs flex items-center gap-2 hover:bg-gray-300 dark:hover:bg-zinc-700 transition">
+                            <i class="fa-solid fa-link text-sm"></i> Salin Link
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Related Articles Section -->
+                <div class="pt-6 space-y-4">
+                    <h3 class="text-xl font-bold uppercase tracking-tight">Artikel Terkait</h3>
+                    <div id="modal-related-articles" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Dynamic related cards -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEARCH MODAL -->
+    <div id="search-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 flex items-start justify-center pt-20 px-4">
+        <div class="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-zinc-800 space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-200 dark:border-zinc-800 pb-3">
+                <input type="text" id="search-input" placeholder="Cari berita, topik, atau penulis..." class="w-full bg-transparent text-lg font-bold focus:outline-none dark:text-white placeholder-gray-400">
+                <button id="close-search" class="text-gray-500 hover:text-black dark:hover:text-white text-xl p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="search-results" class="max-h-80 overflow-y-auto space-y-3 pt-2">
+                <p class="text-xs text-gray-500 italic">Ketik untuk mulai mencari artikel...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-black dark:bg-white text-white dark:text-black px-5 py-3 rounded-2xl shadow-xl text-xs font-bold transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 flex items-center space-x-2">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-red-500"></i>
+        <span id="toast-message">Notifikasi</span>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // ARTICLE DATA STORE
+        const articles = [
+            {
+                id: 1,
+                title: "Regu Putra Cabang Olahraga Badminton Lolos ke Semifinal Asian Games 2026",
+                category: "Olahraga",
+                author: "NathanDwitama",
+                date: "23 Sep 2026",
+                readTime: "1 min read",
+                likes: 342,
+                image: "https://i.ibb.co.com/M5k2p9GD/badminton-Idn.png",
+                caption: "Tim bulu tangkis beregu putra Indonesia berhasil menembus babak semifinal Asian Games 2026 setelah menundukkan Malaysia dengan skor tipis 3-2 pada perempat final.",
+                featured: true,
+                summary: "Tim bulu tangkis beregu putra Indonesia berhasil menembus babak semifinal Asian Games 2026 setelah menundukkan Malaysia dengan skor tipis 3-2 pada perempat final. Hasil ini memastikan kontingen Merah Putih mengamankan medali.",
+                content: [
+                    { type: "paragraph", text: "Tim bulu tangkis beregu putra Indonesia berhasil menembus babak semifinal Asian Games 2026 setelah menundukkan Malaysia dengan skor tipis 3-2 pada perempat final. Hasil ini memastikan kontingen Merah Putih mengamankan medali." },
+                    { type: "paragraph", text: "Laga yang digelar di Ichinomiya City Municipal Gymnasium pada Selasa, 22 September 2026, diawali dengan ketertinggalan Indonesia usai Jonatan Christie menyerah dari Leong Jun Hao melalui pertarungan 22-20, 12-21, 17-21." },
+                    { type: "paragraph", text: "Pasangan Fajar Alfian/Muhammad Shohibul Fikri kemudian menyamakan kedudukan setelah membekuk Goh Sze Fei/Nur Izzuddin 21-15, 19-21, 21-10. Indonesia berbalik memimpin 2-1 berkat kemenangan Alwi Farhan atas Justin Hoh dua gim langsung 21-19, 21-19." },
+                    { type: "paragraph", text: "Malaysia kembali menyamakan skor menjadi 2-2 saat Aaron Chia/Tee Kai Wun unggul atas Leo Rolly Carnando/Daniel Marthin 17-21, 21-16, 21-13. Namun, Zaki Ubaidillah tampil sebagai penentu kemenangan Indonesia usai mengandaskan Eogene Ewe 21-11, 21-11." },
+                    { type: "paragraph", text: "Kemenangan ini memastikan medali perunggu sudah di tangan Indonesia. Peluang meraih medali emas atau perak masih terbuka jika mampu melewati tantangan Thailand pada laga semifinal yang digelar Rabu, 23 September 2026 pukul 13.00 WIB." }
+                ]
+            },
+            {
+                id: 2,
+                title: "Eksplorasi Audio Spasial: Bagaimana Sound Scape Mengubah Pengalaman Musik",
+                category: "Music",
+                author: "Nadia Utami",
+                date: "21 Sep 2026",
+                readTime: "3 min read",
+                likes: 189,
+                image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80",
+                caption: "Pemusik indie bereksperimen dengan mikrofon binaural dalam rekaman album terbarunya.",
+                featured: false,
+                summary: "Teknologi audio 3D menciptakan dimensi pendengaran baru bagi penikmat musik masa kini.",
+                content: [
+                    { type: "paragraph", text: "Musik tidak lagi sekadar didengar dalam mode stereo kiri dan kanan. Penerapan audio spasial membuat pendengar seolah berdiri tepat di tengah-tengah panggung konser atau studio rekaman." },
+                    { type: "paragraph", text: "Produsen musik independen kini memanfaatkan instrumen mikrofon binaural untuk menangkap nuansa ruang secara akurat, menciptakan ilusi akustik yang memukau bagi siapapun yang mendengarkannya lewat headphone." }
+                ]
+            },
+            {
+                id: 3,
+                title: "Desain Minimalis Brutalisme dalam Lanskap Tata Kota Modern",
+                category: "Art",
+                author: "Bagas Surya",
+                date: "20 Sep 2026",
+                readTime: "5 min read",
+                likes: 512,
+                image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80",
+                caption: "Elemen beton terekspos menjadi ciri khas arsitektur brutalist kontemporer.",
+                featured: false,
+                summary: "Gaya arsitektur brutalist dengan material telanjang kembali diadopsi oleh ruang-ruang kreatif publik.",
+                content: [
+                    { type: "paragraph", text: "Brutalisme arsitektur kini bukan lagi dianggap dingin atau kaku. Sebaliknya, bentuk-bentuk geometris tegas dan struktur beton terekspos dinilai mewakili transparansi dan kejujuran dalam desain." },
+                    { type: "subheading", text: "Ruang Publik yang Berdaya Saing" },
+                    { type: "paragraph", text: "Banyak kafe, galeri seni, dan hub kreatif di kota-kota besar memanfaatkan estetika ini untuk menciptakan kontras dramatis dengan vegetasi hijau perkotaan." }
+                ]
+            },
+            {
+                id: 4,
+                title: "Artificial Intelligence sebagai Koleborator Kreatif, Bukan Pengganti",
+                category: "Tech",
+                author: "Dian Sastrowijaya",
+                date: "19 Sep 2026",
+                readTime: "4 min read",
+                likes: 275,
+                image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+                caption: "Generatif AI dikombinasikan dengan sentuhan manual seniman digital.",
+                featured: false,
+                summary: "Para seniman dan desainer memandang AI sebagai asisten proses kreatif alih-alih ancaman karir.",
+                content: [
+                    { type: "paragraph", text: "Debat mengenai kecerdasan buatan dalam seni telah bergeser. Alih-alih takut digantikan, praktisi industri kreatif kini memanfaatkan model AI sebagai sarana *brainstorming* visual yang efisien." },
+                    { type: "quote", text: "AI memangkas waktu pengerjaan praproduksi, memberikan kami lebih banyak ruang untuk mematangkan konsep dasar." }
+                ]
+            },
+            {
+                id: 5,
+                title: "Gaya Hidup Slow-Living di Tengah Hiruk-Pikuk Metropol",
+                category: "Lifestyle",
+                author: "Siti Rahma",
+                date: "18 Sep 2026",
+                readTime: "3 min read",
+                likes: 420,
+                image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
+                caption: "Menikmati seduhan teh pagi menjadi bagian dari ritual kesadaran pikiran (mindfulness).",
+                featured: false,
+                summary: "Tren memperlambat ritme hidup menjadi pilihan populer untuk menjaga kesehatan mental Gen-Z.",
+                content: [
+                    { type: "paragraph", text: "Di era di mana produktivitas diukur dari kecepatan balasan pesan, gerakan *slow living* menawarkan alternatif menyegarkan: berhenti sejenak dan menikmati momen." },
+                    { type: "paragraph", text: "Mulai dari teknik penyeduhan kopi manual hingga menjauhkan diri dari layar (*digital detox*) setiap akhir pekan, makin banyak orang yang memprioritaskan ketenangan pikiran." }
+                ]
+            },
+            {
+                id: 6,
+                title: "Skena Mode Subkultur: Pakaian Bekas (Thrifting) Menjadi Mode Utama",
+                category: "Lifestyle",
+                author: "Rian Febrian",
+                date: "17 Sep 2026",
+                readTime: "4 min read",
+                likes: 630,
+                image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80",
+                caption: "Pencarian busana vintage langka di pasar loak perkotaan.",
+                featured: false,
+                summary: "Kebutuhan akan fashion berkelanjutan mendorong pakaian bekas menjadi bagian dari gaya busana harian.",
+                content: [
+                    { type: "paragraph", text: "Thrifting bukan lagi sekadar pilihan hemat, melainkan pernyataan gaya hidup berkelanjutan dan pencarian identitas yang unik. Gen-Z menolak *fast fashion* demi pakaian langka yang memiliki cerita masa lalu." }
+                ]
+            }
+        ];
+
+        // GLOBAL APPLICATION STATE
+        let currentCategory = 'All';
+        let activeArticleId = null;
+        let bookmarkedArticleIds = JSON.parse(localStorage.getItem('folk_bookmarks') || '[]');
+        let likedArticleIds = JSON.parse(localStorage.getItem('folk_likes') || '[]');
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            renderHero();
+            renderArticles();
+            setupEventListeners();
+        });
+
+        // THEME MANAGEMENT (DARK / LIGHT MODE)
+        function initTheme() {
+            const savedTheme = localStorage.getItem('folk_theme') || 'dark';
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon';
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('folk_theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            showToast(isDark ? 'Mode Gelap Ditingkatkan' : 'Mode Terang Aktif');
+        }
+
+        // RENDER HERO / FEATURED ARTICLE
+        function renderHero() {
+            const heroContainer = document.getElementById('hero-container');
+            const featured = articles.find(a => a.featured) || articles[0];
+
+            heroContainer.innerHTML = `
+                <div class="lg:col-span-7 relative overflow-hidden rounded-xl aspect-video cursor-pointer group" onclick="openArticleModal(${featured.id})">
+                    <img src="${featured.image}" alt="${featured.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <span class="absolute top-4 left-4 bg-red-600 text-white font-bold text-xs uppercase px-3 py-1 rounded-full tracking-wider">
+                        Featured Story
+                    </span>
+                </div>
+                <div class="lg:col-span-5 flex flex-col justify-center space-y-4 cursor-pointer" onclick="openArticleModal(${featured.id})">
+                    <div class="flex items-center space-x-2 text-xs font-bold uppercase text-red-600 tracking-wider">
+                        <span>${featured.category}</span>
+                        <span class="text-gray-400">•</span>
+                        <span class="text-gray-500 dark:text-gray-400">${featured.readTime}</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold uppercase tracking-tight hover:text-red-600 transition leading-snug">
+                        ${featured.title}
+                    </h1>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-3">
+                        ${featured.summary}
+                    </p>
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-zinc-800 text-xs text-gray-500">
+                        <span>Oleh <strong class="text-black dark:text-white">${featured.author}</strong></span>
+                        <span>${featured.date}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // RENDER MAIN ARTICLES GRID
+        function renderArticles() {
+            const grid = document.getElementById('articles-grid');
+            const filtered = currentCategory === 'All' 
+                ? articles 
+                : articles.filter(a => a.category.toLowerCase() === currentCategory.toLowerCase());
+
+            document.getElementById('article-count').innerText = `Menampilkan ${filtered.length} cerita`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-newspaper text-4xl mb-3"></i>
+                        <p>Belum ada artikel untuk kategori ini.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(article => {
+                const isBookmarked = bookmarkedArticleIds.includes(article.id);
+                const isLiked = likedArticleIds.includes(article.id);
+
+                return `
+                    <article class="fade-in group bg-gray-50 dark:bg-zinc-900/40 rounded-2xl border border-gray-200 dark:border-zinc-800/80 overflow-hidden flex flex-col justify-between hover:border-black dark:hover:border-zinc-600 transition duration-300">
+                        <div class="cursor-pointer" onclick="openArticleModal(${article.id})">
+                            <div class="relative overflow-hidden aspect-video bg-gray-200 dark:bg-zinc-800">
+                                <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-md tracking-wider">
+                                    ${article.category}
+                                </span>
+                            </div>
+                            <div class="p-5 space-y-3">
+                                <div class="flex justify-between items-center text-xs text-gray-500 font-medium">
+                                    <span>${article.date}</span>
+                                    <span>${article.readTime}</span>
+                                </div>
+                                <h3 class="text-lg font-bold uppercase tracking-tight group-hover:text-red-600 transition line-clamp-2 leading-snug">
+                                    ${article.title}
+                                </h3>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                                    ${article.summary}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-gray-200 dark:border-zinc-800/80 flex justify-between items-center text-xs text-gray-500">
+                            <span class="font-medium text-black dark:text-gray-300">${article.author}</span>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="toggleLike(${article.id}, event)" class="hover:text-red-600 transition flex items-center gap-1 ${isLiked ? 'text-red-600' : ''}">
+                                    <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                                    <span>${article.likes + (isLiked ? 1 : 0)}</span>
+                                </button>
+                                <button onclick="toggleBookmark(${article.id}, event)" class="hover:text-black dark:hover:text-white transition ${isBookmarked ? 'text-black dark:text-white' : ''}">
+                                    <i class="${isBookmarked ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // FILTER CATEGORY HANDLER
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.getElementById('current-category-title').innerText = cat === 'All' ? 'Latest Feed' : `${cat} Stories`;
+            
+            // Highlight active navigation button
+            document.querySelectorAll('.nav-cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.classList.add('text-red-600', 'font-bold');
+                } else {
+                    btn.classList.remove('text-red-600', 'font-bold');
+                }
+            });
+
+            renderArticles();
+        }
+
+        // READER MODAL LOGIC
+        function openArticleModal(id) {
+            const article = articles.find(a => a.id === id);
+            if (!article) return;
+
+            activeArticleId = id;
+
+            // Update Modal Headers
+            document.getElementById('modal-category').innerText = article.category;
+            document.getElementById('modal-readtime').innerText = article.readTime;
+            document.getElementById('modal-title').innerText = article.title;
+            document.getElementById('modal-author').innerText = article.author;
+            document.getElementById('modal-date').innerText = article.date;
+            document.getElementById('modal-image').src = article.image;
+            document.getElementById('modal-caption').innerText = article.caption || article.title;
+
+            // Render Multi-Paragraph Rich Content
+            const bodyContainer = document.getElementById('modal-article-body');
+            bodyContainer.innerHTML = article.content.map(block => {
+                if (block.type === 'paragraph') {
+                    return `<p>${block.text}</p>`;
+                } else if (block.type === 'subheading') {
+                    return `<h3 class="text-xl sm:text-2xl font-bold uppercase tracking-tight text-black dark:text-white pt-4">${block.text}</h3>`;
+                } else if (block.type === 'quote') {
+                    return `<blockquote class="border-l-4 border-red-600 pl-4 italic text-lg sm:text-xl font-serif text-gray-700 dark:text-gray-300 my-4">${block.text}</blockquote>`;
+                }
+                return '';
+            }).join('');
+
+            // Update Likes & Bookmarks in Modal
+            updateModalInteractiveStates();
+
+            // Render Related Articles
+            renderRelatedArticles(article);
+
+            // Show Modal with smooth animation
+            const modal = document.getElementById('article-modal');
+            const modalBox = document.getElementById('modal-content-container');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalBox.classList.remove('scale-95');
+                modalBox.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeArticleModal() {
+            const modal = document.getElementById('article-modal');
+            const modalBox = document.getElementById('modal-content-container');
+
+            modal.classList.add('opacity-0');
+            modalBox.classList.remove('scale-100');
+            modalBox.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                activeArticleId = null;
+            }, 300);
+        }
+
+        function updateModalInteractiveStates() {
+            if (!activeArticleId) return;
+            const article = articles.find(a => a.id === activeArticleId);
+            const isLiked = likedArticleIds.includes(activeArticleId);
+            const isBookmarked = bookmarkedArticleIds.includes(activeArticleId);
+
+            document.getElementById('modal-like-icon').className = isLiked ? 'fa-solid fa-heart text-red-600' : 'fa-regular fa-heart';
+            document.getElementById('modal-like-count').innerText = article.likes + (isLiked ? 1 : 0);
+
+            document.getElementById('modal-bookmark-icon').className = isBookmarked ? 'fa-solid fa-bookmark text-black dark:text-white' : 'fa-regular fa-bookmark';
+        }
+
+        function renderRelatedArticles(current) {
+            const container = document.getElementById('modal-related-articles');
+            const related = articles.filter(a => a.id !== current.id && a.category === current.category).slice(0, 2);
+
+            const displayList = related.length > 0 ? related : articles.filter(a => a.id !== current.id).slice(0, 2);
+
+            container.innerHTML = displayList.map(item => `
+                <div onclick="openArticleModal(${item.id})" class="flex gap-3 bg-gray-50 dark:bg-zinc-900 p-3 rounded-xl cursor-pointer hover:border-gray-400 border border-transparent transition">
+                    <img src="${item.image}" alt="" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
+                    <div class="flex flex-col justify-center space-y-1">
+                        <span class="text-[10px] font-bold uppercase text-red-600">${item.category}</span>
+                        <h4 class="text-xs font-bold uppercase line-clamp-2">${item.title}</h4>
+                        <span class="text-[10px] text-gray-500">${item.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // LIKES & BOOKMARKS LOGIC
+        function toggleLike(id, event) {
+            if (event) event.stopPropagation();
+            if (likedArticleIds.includes(id)) {
+                likedArticleIds = likedArticleIds.filter(i => i !== id);
+                showToast('Diapus dari daftar suka');
+            } else {
+                likedArticleIds.push(id);
+                showToast('Disukai!');
+            }
+            localStorage.setItem('folk_likes', JSON.stringify(likedArticleIds));
+            renderArticles();
+            if (activeArticleId === id) updateModalInteractiveStates();
+        }
+
+        function toggleLikeCurrentArticle() {
+            if (activeArticleId) toggleLike(activeArticleId, null);
+        }
+
+        function toggleBookmark(id, event) {
+            if (event) event.stopPropagation();
+            if (bookmarkedArticleIds.includes(id)) {
+                bookmarkedArticleIds = bookmarkedArticleIds.filter(i => i !== id);
+                showToast('Artikel dihapus dari simpanan');
+            } else {
+                bookmarkedArticleIds.push(id);
+                showToast('Artikel disimpan!');
+            }
+            localStorage.setItem('folk_bookmarks', JSON.stringify(bookmarkedArticleIds));
+            renderArticles();
+            if (activeArticleId === id) updateModalInteractiveStates();
+        }
+
+        function toggleBookmarkCurrentArticle() {
+            if (activeArticleId) toggleBookmark(activeArticleId, null);
+        }
+
+        // SHARE FUNCTIONALITY
+        function shareArticle(platform) {
+            const url = window.location.href;
+            const article = articles.find(a => a.id === activeArticleId);
+            const text = article ? article.title : "Folk Media";
+
+            if (platform === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+            } else if (platform === 'twitter') {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+            } else if (platform === 'copy') {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Tautan berhasil disalin ke clipboard!');
+                }).catch(() => {
+                    showToast('Gagal menyalin tautan.');
+                });
+            }
+        }
+
+        // SEARCH FUNCTIONALITY
+        function setupEventListeners() {
+            // Theme toggle button listener
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+            // Search Modal toggles
+            const searchBtn = document.getElementById('search-btn');
+            const searchModal = document.getElementById('search-modal');
+            const closeSearch = document.getElementById('close-search');
+            const searchInput = document.getElementById('search-input');
+
+            searchBtn.addEventListener('click', () => {
+                searchModal.classList.remove('hidden');
+                setTimeout(() => {
+                    searchModal.classList.remove('opacity-0');
+                    searchInput.focus();
+                }, 10);
+            });
+
+            closeSearch.addEventListener('click', () => {
+                searchModal.classList.add('opacity-0');
+                setTimeout(() => searchModal.classList.add('hidden'), 300);
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const resultsContainer = document.getElementById('search-results');
+
+                if (!query) {
+                    resultsContainer.innerHTML = `<p class="text-xs text-gray-500 italic">Ketik untuk mulai mencari artikel...</p>`;
+                    return;
+                }
+
+                const matches = articles.filter(a => 
+                    a.title.toLowerCase().includes(query) || 
+                    a.summary.toLowerCase().includes(query) ||
+                    a.category.toLowerCase().includes(query)
+                );
+
+                if (matches.length === 0) {
+                    resultsContainer.innerHTML = `<p class="text-xs text-gray-500">Tidak ada artikel yang cocok dengan "${query}".</p>`;
+                    return;
+                }
+
+                resultsContainer.innerHTML = matches.map(m => `
+                    <div onclick="openArticleModal(${m.id}); document.getElementById('close-search').click();" class="p-3 bg-gray-100 dark:bg-zinc-800 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-zinc-700 transition">
+                        <span class="text-[10px] uppercase font-bold text-red-600">${m.category}</span>
+                        <h4 class="text-sm font-bold uppercase">${m.title}</h4>
+                    </div>
+                `).join('');
+            });
+
+            // Mobile menu listeners
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const closeMobile = document.getElementById('close-mobile-menu');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+                setTimeout(() => mobileMenu.classList.remove('opacity-0'), 10);
+            });
+
+            closeMobile.addEventListener('click', closeMobileNav);
+
+            // Keyboard Escape listener to close modals
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeArticleModal();
+                    document.getElementById('close-search').click();
+                    closeMobileNav();
+                }
+            });
+        }
+
+        function closeMobileNav() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.add('opacity-0');
+            setTimeout(() => mobileMenu.classList.hidden = true, 300);
+        }
+
+        // NEWSLETTER HANDLER
+        function handleSubscribe(e) {
+            e.preventDefault();
+            showToast('Terima kasih! Anda berhasil berlangganan newsletter.');
+            e.target.reset();
+        }
+
+        // TOAST NOTIFICATION
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
